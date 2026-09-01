@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: courier-mysql
+    environment:
+      MYSQL_DATABASE: courier_db
+      MYSQL_USER: courier_user
+      MYSQL_PASSWORD: courier_password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - courier_mysql_data:/var/lib/mysql
+    networks:
+      - courier-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: courier-redis
+    networks:
+      - courier-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: courier-backend
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-courier_db}
+      DB_USER: ${DB_USER:-courier_user}
+      DB_PASSWORD: ${DB_PASSWORD:-courier_password}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      URBANE_BOLT_BASE_URL: ${URBANE_BOLT_BASE_URL}
+      URBANE_BOLT_API_KEY: ${URBANE_BOLT_API_KEY}
+      URBANE_BOLT_TIMEOUT: ${URBANE_BOLT_TIMEOUT:-10000}
+      URBANE_BOLT_RETRY_COUNT: ${URBANE_BOLT_RETRY_COUNT:-3}
+      MOCK_COURIER_ENABLED: ${MOCK_COURIER_ENABLED:-true}
+      MOCK_COURIER_DELAY: ${MOCK_COURIER_DELAY:-500}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - courier-network
+    restart: unless-stopped
+    command: sh -c "sleep 10 && node dist/database/migrate.js && node dist/index.js"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: courier-worker
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-courier_db}
+      DB_USER: ${DB_USER:-courier_user}
+      DB_PASSWORD: ${DB_PASSWORD:-courier_password}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      URBANE_BOLT_BASE_URL: ${URBANE_BOLT_BASE_URL}
+      URBANE_BOLT_API_KEY: ${URBANE_BOLT_API_KEY}
+      URBANE_BOLT_TIMEOUT: ${URBANE_BOLT_TIMEOUT:-10000}
+      URBANE_BOLT_RETRY_COUNT: ${URBANE_BOLT_RETRY_COUNT:-3}
+      MOCK_COURIER_ENABLED: ${MOCK_COURIER_ENABLED:-true}
+      MOCK_COURIER_DELAY: ${MOCK_COURIER_DELAY:-500}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    networks:
+      - courier-network
+    restart: unless-stopped
+    command: node dist/worker.js
+
+networks:
+  courier-network:
+    name: courier-network
+    driver: bridge
+
+volumes:
+  courier_mysql_data:
+    name: courier_mysql_data

@@ -1,0 +1,213 @@
+{
+  "info": {
+    "name": "Multi-Courier Integration Platform",
+    "description": "API collection for testing the Multi-Courier Integration Platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["health"]
+        },
+        "description": "Check system health and service connectivity"
+      }
+    },
+    {
+      "name": "Create Order (Mock Courier)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"ORD-MOCK-001\",\n  \"courier_partner\": \"mockcourier\",\n  \"pickup\": {\n    \"name\": \"John Sender\",\n    \"phone\": \"9876543210\",\n    \"address\": \"123 Pickup Street, Building A\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"pincode\": \"400001\"\n  },\n  \"delivery\": {\n    \"name\": \"Jane Receiver\",\n    \"phone\": \"8765432109\",\n    \"address\": \"456 Delivery Avenue, Flat 5B\",\n    \"city\": \"Delhi\",\n    \"state\": \"Delhi\",\n    \"pincode\": \"110001\"\n  },\n  \"package\": {\n    \"weight\": 1.5,\n    \"length\": 30,\n    \"width\": 20,\n    \"height\": 10,\n    \"description\": \"Electronics - Smartphone\"\n  },\n  \"payment_mode\": \"prepaid\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/v1/orders",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "v1", "orders"]
+        },
+        "description": "Create a new order using Mock Courier"
+      }
+    },
+    {
+      "name": "Create Order (UrbaneBolt)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"ORD-UB-001\",\n  \"courier_partner\": \"urbanebolt\",\n  \"pickup\": {\n    \"name\": \"Ramesh Kumar\",\n    \"phone\": \"9123456789\",\n    \"address\": \"Plot 45, Sector 18, Industrial Area\",\n    \"city\": \"Bangalore\",\n    \"state\": \"Karnataka\",\n    \"pincode\": \"560001\"\n  },\n  \"delivery\": {\n    \"name\": \"Priya Sharma\",\n    \"phone\": \"8234567890\",\n    \"address\": \"Flat 302, Tower B, Green Park Apartments\",\n    \"city\": \"Pune\",\n    \"state\": \"Maharashtra\",\n    \"pincode\": \"411001\"\n  },\n  \"package\": {\n    \"weight\": 2.5,\n    \"length\": 40,\n    \"width\": 30,\n    \"height\": 15,\n    \"description\": \"Books and Stationery\"\n  },\n  \"payment_mode\": \"cod\",\n  \"cod_amount\": 1500\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/v1/orders",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "v1", "orders"]
+        },
+        "description": "Create a new order using UrbaneBolt"
+      }
+    },
+    {
+      "name": "Create Order (Duplicate - Test Idempotency)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"ORD-MOCK-001\",\n  \"courier_partner\": \"mockcourier\",\n  \"pickup\": {\n    \"name\": \"John Sender\",\n    \"phone\": \"9876543210\",\n    \"address\": \"123 Pickup Street, Building A\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"pincode\": \"400001\"\n  },\n  \"delivery\": {\n    \"name\": \"Jane Receiver\",\n    \"phone\": \"8765432109\",\n    \"address\": \"456 Delivery Avenue, Flat 5B\",\n    \"city\": \"Delhi\",\n    \"state\": \"Delhi\",\n    \"pincode\": \"110001\"\n  },\n  \"package\": {\n    \"weight\": 1.5,\n    \"length\": 30,\n    \"width\": 20,\n    \"height\": 10\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/v1/orders",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "v1", "orders"]
+        },
+        "description": "Submit the same order again to test idempotency (should return existing order)"
+      }
+    },
+    {
+      "name": "Track Order",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/v1/orders/ORD-MOCK-001/track",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "v1", "orders", "ORD-MOCK-001", "track"]
+        },
+        "description": "Track an existing order by order_id"
+      }
+    },
+    {
+      "name": "Cancel Order",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/v1/orders/ORD-MOCK-001/cancel",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "v1", "orders", "ORD-MOCK-001", "cancel"]
+        },
+        "description": "Cancel an existing order by order_id"
+      }
+    },
+    {
+      "name": "Bulk Orders (Mixed Couriers)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orders\": [\n    {\n      \"order_id\": \"BULK-001\",\n      \"courier_partner\": \"mockcourier\",\n      \"pickup\": {\n        \"name\": \"Seller A\",\n        \"phone\": \"9111111111\",\n        \"address\": \"Warehouse 1\",\n        \"city\": \"Mumbai\",\n        \"state\": \"Maharashtra\",\n        \"pincode\": \"400001\"\n      },\n      \"delivery\": {\n        \"name\": \"Customer 1\",\n        \"phone\": \"9222222222\",\n        \"address\": \"Home 1\",\n        \"city\": \"Delhi\",\n        \"state\": \"Delhi\",\n        \"pincode\": \"110001\"\n      },\n      \"package\": {\n        \"weight\": 1.0,\n        \"length\": 20,\n        \"width\": 15,\n        \"height\": 10\n      }\n    },\n    {\n      \"order_id\": \"BULK-002\",\n      \"courier_partner\": \"mockcourier\",\n      \"pickup\": {\n        \"name\": \"Seller A\",\n        \"phone\": \"9111111111\",\n        \"address\": \"Warehouse 1\",\n        \"city\": \"Mumbai\",\n        \"state\": \"Maharashtra\",\n        \"pincode\": \"400001\"\n      },\n      \"delivery\": {\n        \"name\": \"Customer 2\",\n        \"phone\": \"9333333333\",\n        \"address\": \"Home 2\",\n        \"city\": \"Bangalore\",\n        \"state\": \"Karnataka\",\n        \"pincode\": \"560001\"\n      },\n      \"package\": {\n        \"weight\": 1.5,\n        \"length\": 25,\n        \"width\": 20,\n        \"height\": 12\n      }\n    },\n    {\n      \"order_id\": \"BULK-003\",\n      \"courier_partner\": \"mockcourier\",\n      \"pickup\": {\n        \"name\": \"Seller B\",\n        \"phone\": \"9444444444\",\n        \"address\": \"Warehouse 2\",\n        \"city\": \"Pune\",\n        \"state\": \"Maharashtra\",\n        \"pincode\": \"411001\"\n      },\n      \"delivery\": {\n        \"name\": \"Customer 3\",\n        \"phone\": \"9555555555\",\n        \"address\": \"Home 3\",\n        \"city\": \"Chennai\",\n        \"state\": \"Tamil Nadu\",\n        \"pincode\": \"600001\"\n      },\n      \"package\": {\n        \"weight\": 2.0,\n        \"length\": 30,\n        \"width\": 25,\n        \"height\": 15\n      }\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/v1/orders/bulk",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "v1", "orders", "bulk"]
+        },
+        "description": "Create multiple orders in bulk (async processing)"
+      }
+    },
+    {
+      "name": "Get Batch Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/v1/batches/BATCH-550e8400-e29b-41d4-a716-446655440000",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "v1", "batches", "BATCH-550e8400-e29b-41d4-a716-446655440000"]
+        },
+        "description": "Check the status of a bulk order batch (replace batch_id with actual ID from bulk order response)"
+      }
+    },
+    {
+      "name": "Create Order (Invalid - Missing Fields)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"INVALID-001\",\n  \"pickup\": {\n    \"name\": \"Test\"\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/v1/orders",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "v1", "orders"]
+        },
+        "description": "Test validation - should return 400 with validation errors"
+      }
+    },
+    {
+      "name": "Create Order (Invalid Courier)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"order_id\": \"INVALID-002\",\n  \"courier_partner\": \"invalidcourier\",\n  \"pickup\": {\n    \"name\": \"John Sender\",\n    \"phone\": \"9876543210\",\n    \"address\": \"123 Pickup Street\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"pincode\": \"400001\"\n  },\n  \"delivery\": {\n    \"name\": \"Jane Receiver\",\n    \"phone\": \"8765432109\",\n    \"address\": \"456 Delivery Avenue\",\n    \"city\": \"Delhi\",\n    \"state\": \"Delhi\",\n    \"pincode\": \"110001\"\n  },\n  \"package\": {\n    \"weight\": 1.5,\n    \"length\": 30,\n    \"width\": 20,\n    \"height\": 10\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/v1/orders",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "v1", "orders"]
+        },
+        "description": "Test unsupported courier - should return 400 with list of supported couriers"
+      }
+    }
+  ]
+}
